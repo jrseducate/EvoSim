@@ -144,7 +144,7 @@ declareClass('Population', function(options)
         each(this.dnaList, function(dna)
         {
             var fitness = dna.avgFitness,
-                count   = Math.min(fitness * 100) + 1;
+                count   = Math.floor(Math.pow(fitness * 100, 2) / Math.pow(100, 2) * 100);//Math.floor(Math.max(fitness * 100, 50) - 49);
 
             for(var i = 0; i < count; i++)
             {
@@ -152,16 +152,21 @@ declareClass('Population', function(options)
             }
         });
 
+        var newFitList = [];
+
+        for(var i = 0, j = fitList.length - 1; i < fitList.length / 2; i++, j--)
+        {
+            var selectedDna    = fitList[i],
+                selectedDnaB   = fitList[j];
+
+            newFitList.push(selectedDna.crossover(selectedDnaB));
+        }
+
         this.dnaList = [];
 
         for(var i = 0; i < this.size; i++)
         {
-            var selectedIndex  = Math.floor(Math.random() * fitList.length),
-                selectedDna    = fitList[selectedIndex],
-                selectedIndexB = Math.floor(Math.random() * fitList.length),
-                selectedDnaB   = fitList[selectedIndexB];
-
-            this.dnaList.push(selectedDna.crossover(selectedDnaB));
+            this.dnaList.push(newFitList[Math.floor(Math.random() * newFitList.length)]);
         }
 
         this.init();
@@ -213,7 +218,7 @@ var fitnessSpan = document.getElementById('app-fitness'),
         size   : 150,
         dnaExp : exp,
         dnaDef : {
-            len      : 50,
+            len      : 100,
             init     : function()
             {
                 this.dnaInc = 0;
@@ -280,7 +285,7 @@ var fitnessSpan = document.getElementById('app-fitness'),
 
                 this.avgFitness = ((this.avgFitness * this.cntFitness) + this.calcFitness()) / ++this.cntFitness;
 
-                if(Math.random() < 0.01)
+                if(Math.random() < 0.005)
                 {
                     this.mutate();
                 }
@@ -314,7 +319,7 @@ var i        = 0,
     pop.render();
     pop.update();
 
-    if(i++ >= 120)
+    if(i++ >= 480)
     {
         var avgFitness = 0,
             breakCount = fitnessSpan.querySelectorAll('br');
@@ -337,7 +342,7 @@ var i        = 0,
         i = 0;
         pop.reproduce();
     }
-}, 25);
+}, 5);
 
 function stop()
 {
