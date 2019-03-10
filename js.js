@@ -76,9 +76,9 @@ declareClass('DNA', function(expression, options) {
     {
         return this.dna;
     },
-    calcFitness : function()
+    calcFitness : function(target)
     {
-        return ((Math.min(600, this.y) / 600) + (Math.min(800, this.x) / 800)) / 2;
+        return (1 / (Math.sqrt(Math.pow(target[0] - this.x, 2) + Math.pow(target[1] - this.y, 2)) + 1) * 50);//((Math.min(600, this.y) / 600) + (Math.min(800, this.x) / 800)) / 2;
     },
     mutate    : function()
     {
@@ -117,6 +117,7 @@ declareClass('Population', function(options)
     this.size   = try_get(options, 'size', 100);
     this.dnaDef = try_get(options, 'dnaDef', {}, is_object);
     this.dnaExp = try_get(options, 'dnaExp', {}, is_object);
+    this.target = try_get(options, 'target', {}, is_array);
     this.dnaList = this.generateDnaList();
 }, {
     init : function()
@@ -217,6 +218,7 @@ var fitnessSpan = document.getElementById('app-fitness'),
     pop = New(Population, {
         size   : 150,
         dnaExp : exp,
+        target : [750, 550],
         dnaDef : {
             len      : 100,
             init     : function()
@@ -283,12 +285,7 @@ var fitnessSpan = document.getElementById('app-fitness'),
                     this.y += expression.val[1] * 15;
                 }
 
-                this.avgFitness = ((this.avgFitness * this.cntFitness) + this.calcFitness()) / ++this.cntFitness;
-
-                if(Math.random() < 0.005)
-                {
-                    this.mutate();
-                }
+                this.avgFitness = ((this.avgFitness * this.cntFitness) + this.calcFitness(pop.target)) / ++this.cntFitness;
 
                 return expression !== false;
             },
@@ -309,17 +306,17 @@ var i        = 0,
     graphics.fillRect(0, 0, 800, 600);
 
     graphics.fillStyle = '#FF0000';
-    graphics.fillRect(750, 550, 50, 50);
+    graphics.fillRect(pop.target[0] - 25, pop.target[1] - 25, 50, 50);
 
     graphics.fillStyle = '#000000';
     graphics.font      = "15px Arial";
     graphics.textAlign = "center";
-    graphics.fillText("Dest", 775, 580);
+    graphics.fillText("Dest", pop.target[0], pop.target[1] + 5);
 
     pop.render();
     pop.update();
 
-    if(i++ >= 480)
+    if(i++ >= 240)
     {
         var avgFitness = 0,
             breakCount = fitnessSpan.querySelectorAll('br');
@@ -327,6 +324,7 @@ var i        = 0,
         each(pop.dnaList, function(dna)
         {
             avgFitness += dna.avgFitness;
+            dna.mutate();
         });
 
         avgFitness = avgFitness / pop.dnaList.length;
@@ -342,7 +340,17 @@ var i        = 0,
         i = 0;
         pop.reproduce();
     }
-}, 5);
+}, 2);
+
+canvas.onclick = function(e)
+{
+    var rect = canvas.getBoundingClientRect();
+    var x = e.clientX - rect.left;
+    var y = e.clientY - rect.top;
+    console.log("x: " + x + " y: " + y);
+
+    pop.target = [x, y];
+};
 
 function stop()
 {
