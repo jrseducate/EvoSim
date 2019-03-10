@@ -271,7 +271,7 @@ var fitnessSpan = document.getElementById('app-fitness'),
         dnaExp : exp,
         target : [750, 550],
         dnaDef : {
-            len      : 100,
+            len      : 200,
             init     : function()
             {
                 this.dnaInc = 0;
@@ -323,17 +323,17 @@ var fitnessSpan = document.getElementById('app-fitness'),
             },
             update : function()
             {
-                if(this.x <= 0 || this.x >= 800 || this.y <= 0 || this.y >= 600 || pop.checkHitWall(this))
-                {
-                    return true;
-                }
+                var expression = false;
 
-                var expression = this.activate();
-
-                if(is_array(expression.val) && expression.val.length === 2)
+                if(!(this.x <= 0 || this.x >= 800 || this.y <= 0 || this.y >= 600 || pop.checkHitWall(this)))
                 {
-                    this.x += expression.val[0] * 15;
-                    this.y += expression.val[1] * 15;
+                    expression = this.activate();
+
+                    if(is_array(expression.val) && expression.val.length === 2)
+                    {
+                        this.x += expression.val[0] * 15;
+                        this.y += expression.val[1] * 15;
+                    }
                 }
 
                 this.avgFitness = ((this.avgFitness * this.cntFitness) + this.calcFitness(pop.target)) / ++this.cntFitness;
@@ -381,7 +381,11 @@ var encoder,
         each(pop.dnaList, function(dna)
         {
             avgFitness += dna.avgFitness;
-            dna.mutate();
+
+            if(Math.random() < 1 / Math.min(dna.avgFitness, 99) + 1)
+            {
+                dna.mutate();
+            }
         });
 
         avgFitness = avgFitness / pop.dnaList.length;
@@ -410,9 +414,9 @@ btnDest.onclick = function()
     {
         btnWall.classList.remove('disabled');
         btnWall.classList.remove('btn-primary');
-        btnWall.classList.add('btn-danger');
+        btnWall.classList.add('btn-secondary');
         this.classList.add('disabled');
-        this.classList.remove('btn-danger');
+        this.classList.remove('btn-secondary');
         this.classList.add('btn-primary');
 
         clickMode = 'dest';
@@ -425,9 +429,9 @@ btnWall.onclick = function()
     {
         btnDest.classList.remove('disabled');
         btnDest.classList.remove('btn-primary');
-        btnDest.classList.add('btn-danger');
+        btnDest.classList.add('btn-secondary');
         this.classList.add('disabled');
-        this.classList.remove('btn-danger');
+        this.classList.remove('btn-secondary');
         this.classList.add('btn-primary');
 
         clickMode = 'wall';
