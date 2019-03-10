@@ -145,9 +145,9 @@ declareClass('Population', function(options)
         each(this.dnaList, function(dna)
         {
             var fitness = dna.avgFitness,
-                count   = Math.floor(Math.pow(fitness * 100, 2) / Math.pow(100, 2) * 100);//Math.floor(Math.max(fitness * 100, 50) - 49);
+                count   = Math.min(400, Math.floor(Math.pow(fitness * 100, 2) / Math.pow(100, 2) * 100)) / 4;//Math.floor(Math.max(fitness * 100, 50) - 49);
 
-            for(var i = 0; i < count; i++)
+            for(var i = 0; i <= count; i++)
             {
                 fitList.push(dna);
             }
@@ -297,12 +297,13 @@ var fitnessSpan = document.getElementById('app-fitness'),
         }
     });
 
-var i        = 0,
+var encoder,
+    i        = 0,
     interval = setInterval(function()
 {
-    graphics.clearRect(0, 0, 800, 600);
+    // graphics.clearRect(0, 0, 800, 600);
 
-    graphics.fillStyle = '#FFFFFF';
+    graphics.fillStyle = '#FFFFFF11';
     graphics.fillRect(0, 0, 800, 600);
 
     graphics.fillStyle = '#FF0000';
@@ -314,6 +315,11 @@ var i        = 0,
     graphics.fillText("Dest", pop.target[0], pop.target[1] + 5);
 
     pop.render();
+    if(isset(encoder))
+    {
+        encoder.addFrame(graphics);
+    }
+
     pop.update();
 
     if(i++ >= 240)
@@ -337,6 +343,7 @@ var i        = 0,
 
         fitnessSpan.innerHTML = "<br>Average Fitness: " + (avgFitness * 100).toFixed(2) + fitnessSpan.innerHTML;
 
+        graphics.clearRect(0, 0, 800, 600);
         i = 0;
         pop.reproduce();
     }
@@ -352,7 +359,69 @@ canvas.onclick = function(e)
     pop.target = [x, y];
 };
 
+document.onkeypress = function(e)
+{
+    if(e.key === ' ')
+    {
+        if(isset(encoder))
+        {
+            encoder.finish();
+
+            var fileName = window.prompt("File Name", "download.gif");
+
+            if(typeof fileName === 'string' && fileName.length > 0)
+            {
+                encoder.download(fileName);
+            }
+
+            encoder = null;
+        }
+        else
+        {
+            encoder = new GIFEncoder();
+            encoder.setRepeat(0);
+            encoder.setDelay(2);
+            encoder.start();
+        }
+    }
+};
+
 function stop()
 {
     clearInterval(interval);
 }
+
+// if(app.encoder)
+// {
+//     app.encoder.finish();
+//
+//     var binary_gif   = app.encoder.stream().getData(),
+//         data_url     = 'data:image/gif;base64,' + encode64(binary_gif),
+//         id           = 'app-preview-image-' + selectors.piContainer.children.length + 1,
+//         active       = selectors.piContainer.children.length === 0 ? ' active' : '';
+//         piContent    = htmlToElement('<div class="carousel-item' + active + '"> <img id="' + id + '" /><span class="centered preview-image-download" data-forward-click="#' + id + '">Download</span> </div>'),
+//         previewImage = piContent.querySelector('img');
+//
+//     previewImage.src = data_url;
+//
+//     scope(function(encoder)
+//     {
+//         previewImage.onclick = null;
+//         previewImage.onclick = function()
+//         {
+//             if(encoder && this.src !== null && this.src !== undefined && this.src.length > 0)
+//             {
+//                 var fileName = window.prompt("File Name", "download.gif");
+//
+//                 if(typeof fileName === 'string' && fileName.length > 0)
+//                 {
+//                     encoder.download(fileName);
+//                 }
+//             }
+//         }
+//     }, app.encoder);
+//
+//     selectors.piContainer.classList.add('enabled');
+//     selectors.piContainer.parentNode.classList.add('enabled');
+//     selectors.piContainer.appendChild(piContent);
+// }
