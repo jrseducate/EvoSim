@@ -119,6 +119,7 @@ declareClass('Population', function(options)
     this.dnaExp = try_get(options, 'dnaExp', {}, is_object);
     this.target = try_get(options, 'target', {}, is_array);
     this.dnaList = this.generateDnaList();
+    this.walls   = [];
 }, {
     init : function()
     {
@@ -172,16 +173,66 @@ declareClass('Population', function(options)
 
         this.init();
     },
+    checkHitWall : function(dna)
+    {
+        var wallHit = false;
+
+        each(this.walls, function(wall)
+        {
+            if(is_array(wall) && wall[0] - 15 <= dna.x && wall[0] + 15 >= dna.x && wall[1] - 15 <= dna.y && wall[1] + 15 >= dna.y)
+            {
+                wallHit = true;
+            }
+
+            return !wallHit;
+        });
+
+        return wallHit;
+    },
+    toggleWall : function(x, y)
+    {
+        var context       = this,
+            removeIndexes = [];
+
+        each(this.walls, function(wall, i)
+        {
+            if(is_array(wall) && wall[0] - 15 <= x && wall[0] + 15 >= x && wall[1] - 15 <= y && wall[1] + 15 >= y)
+            {
+                removeIndexes.push(i);
+            }
+        });
+
+        if(removeIndexes.length > 0)
+        {
+            each(removeIndexes, function(i)
+            {
+                context.walls[i] = null;
+            });
+        }
+        else
+        {
+            this.walls.push([x, y]);
+        }
+    },
     render : function()
     {
-        return each(this.dnaList, function(dna)
+        each(this.walls, function(wall)
+        {
+            if(is_array(wall))
+            {
+                graphics.fillStyle = '#000000';
+                graphics.fillRect(wall[0] - 15, wall[1] - 15, 30, 30);
+            }
+        });
+
+        each(this.dnaList, function(dna)
         {
             dna.render();
         });
     },
     update : function()
     {
-        return each(this.dnaList, function(dna)
+        each(this.dnaList, function(dna)
         {
             dna.update();
         });
@@ -272,7 +323,7 @@ var fitnessSpan = document.getElementById('app-fitness'),
             },
             update : function()
             {
-                if(this.x <= 0 || this.x >= 800 || this.y <= 0 || this.y >= 600)
+                if(this.x <= 0 || this.x >= 800 || this.y <= 0 || this.y >= 600 || pop.checkHitWall(this))
                 {
                     return true;
                 }
@@ -322,7 +373,7 @@ var encoder,
 
     pop.update();
 
-    if(i++ >= 240)
+    if(i++ >= 480)
     {
         var avgFitness = 0,
             breakCount = fitnessSpan.querySelectorAll('br');
@@ -349,14 +400,56 @@ var encoder,
     }
 }, 2);
 
+var clickMode = 'dest',
+    btnDest   = document.getElementById('app-button-dest'),
+    btnWall   = document.getElementById('app-button-wall');
+
+btnDest.onclick = function()
+{
+    if(!this.classList.contains('disabled'))
+    {
+        btnWall.classList.remove('disabled');
+        btnWall.classList.remove('btn-primary');
+        btnWall.classList.add('btn-danger');
+        this.classList.add('disabled');
+        this.classList.remove('btn-danger');
+        this.classList.add('btn-primary');
+
+        clickMode = 'dest';
+    }
+};
+
+btnWall.onclick = function()
+{
+    if(!this.classList.contains('disabled'))
+    {
+        btnDest.classList.remove('disabled');
+        btnDest.classList.remove('btn-primary');
+        btnDest.classList.add('btn-danger');
+        this.classList.add('disabled');
+        this.classList.remove('btn-danger');
+        this.classList.add('btn-primary');
+
+        clickMode = 'wall';
+    }
+};
+
 canvas.onclick = function(e)
 {
-    var rect = canvas.getBoundingClientRect();
-    var x = e.clientX - rect.left;
-    var y = e.clientY - rect.top;
+    var rect = canvas.getBoundingClientRect(),
+        x    = e.clientX - rect.left,
+        y    = e.clientY - rect.top;
+
     console.log("x: " + x + " y: " + y);
 
-    pop.target = [x, y];
+    if(clickMode === 'dest')
+    {
+        pop.target = [x, y];
+    }
+    else if(clickMode === 'wall')
+    {
+        pop.toggleWall(x, y);
+    }
 };
 
 document.onkeypress = function(e)

@@ -22,6 +22,10 @@
                 text-align: center !important;
             }
 
+            .w100p {
+                width: 100% !important;
+            }
+
             body {
                 position: fixed;
                 top: 0px;
@@ -60,6 +64,10 @@
         <div id='content'>
             <span id="app-fitness"></span>
             <canvas id='app-canvas' class='centered' width='800' height='600'></canvas>
+            <div id="app-buttons" class='align-center w100p'>
+                <div id="app-button-dest" class="btn btn-primary disabled">Dest</div>
+                <div id="app-button-wall" class="btn btn-danger">Wall</div>
+            </div>
         </div>
 
         <script src='util.js'></script>
