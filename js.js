@@ -196,7 +196,7 @@ declareClass('Population', function(options)
 
         each(this.dnaList, function(dna)
         {
-            var fitness = dna.fitness,
+            var fitness = dna.fitness / pop.tick,
                 count   = Math.min(400, Math.floor(Math.pow(fitness * 100, 2) / Math.pow(100, 2) * 100)) / 4;//Math.floor(Math.max(fitness * 100, 50) - 49);
 
             for(var i = 0; i <= count; i++)
@@ -423,7 +423,7 @@ function updateApp()
 
     pop.update();
 
-    if(i++ >= 480)
+    if(pop.tick++ >= 480)
     {
         var avgFitness = 0,
             breakCount = fitnessSpan.querySelectorAll('br');
@@ -449,7 +449,7 @@ function updateApp()
         fitnessSpan.innerHTML = "<br>Average Fitness: " + (avgFitness * 100).toFixed(2) + fitnessSpan.innerHTML;
 
         graphics.clearRect(0, 0, 800, 600);
-        i = 0;
+        pop.tick = 0;
         pop.reproduce();
 
         if(is_function(pop.onComplete))
@@ -486,7 +486,6 @@ function stop(callback)
 }
 
 var encoder,
-    i        = 0,
     interval;
 
 start();
