@@ -445,7 +445,7 @@ function updateApp()
         {
             avgFitness += dna.fitness / pop.tick;
 
-            if(Math.random() < 0.75)
+            if(Math.random() < 0.25)
             {
                 dna.mutate();
             }
