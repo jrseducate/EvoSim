@@ -119,7 +119,7 @@ declareClass('DNA', function(expression, options) {
     {
         var xDist = Math.abs(target[0] - this.x),
             yDist = Math.abs(target[1] - this.y),
-            pow   = 2,
+            pow   = 10,
             res   = Math.pow((((800 + 600) - Math.max(xDist + yDist, 1)) / (800 + 600)) * 10, pow) / Math.pow(9, pow);
 
         return res;//(1 / (Math.sqrt(Math.pow(target[0] - this.x, 2) + Math.pow(target[1] - this.y, 2)) + 1) * 50);//((Math.min(600, this.y) / 600) + (Math.min(800, this.x) / 800)) / 2;
