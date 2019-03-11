@@ -212,7 +212,7 @@ declareClass('Population', function(options)
         each(this.dnaList, function(dna)
         {
             var fitness = Math.min(dna.fitness / pop.tick, 100),
-                count   = Math.floor(fitness * 250);
+                count   = Math.floor(fitness * 100);
 
             for(var i = 0; i <= count; i++)
             {
