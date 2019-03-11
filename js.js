@@ -120,7 +120,7 @@ declareClass('DNA', function(expression, options) {
         var xDist = Math.abs(target[0] - this.x),
             yDist = Math.abs(target[1] - this.y),
             pow   = 10,
-            res   = Math.pow((((800 + 600) - Math.max(xDist + yDist, 1)) / (800 + 600)) * 10, pow) / Math.pow(9, pow);
+            res   = Math.pow((((800 + 600) - Math.max(xDist + yDist, 1)) / (800 + 600)) * 10, pow) / Math.pow(9, pow) * 10;
 
         return res;//(1 / (Math.sqrt(Math.pow(target[0] - this.x, 2) + Math.pow(target[1] - this.y, 2)) + 1) * 50);//((Math.min(600, this.y) / 600) + (Math.min(800, this.x) / 800)) / 2;
     },
@@ -212,7 +212,7 @@ declareClass('Population', function(options)
         each(this.dnaList, function(dna)
         {
             var fitness = dna.fitness / pop.tick,
-                count   = Math.floor(fitness * 100);
+                count   = Math.floor(fitness * 250);
 
             for(var i = 0; i <= count; i++)
             {
@@ -224,8 +224,8 @@ declareClass('Population', function(options)
 
         for(var i = 0; i < fitList.length; i++)
         {
-            var selectedDna    = fitList[Math.floor(Math.random() * (fitList.length / 2))],
-                selectedDnaB   = fitList[Math.floor((Math.random() * (fitList.length / 2)) + (fitList.length / 2))];
+            var selectedDna    = fitList[Math.floor(Math.random() * fitList.length)],
+                selectedDnaB   = fitList[Math.floor(Math.random() * fitList.length)];
 
             newFitList.push(selectedDna.crossover(selectedDnaB));
         }
@@ -414,21 +414,20 @@ var fitnessSpan = document.getElementById('app-fitness'),
                         this.x += expression.val[0] * 15;
                         this.y += expression.val[1] * 15;
                     }
-                    // this.avgFitness = ((this.avgFitness * this.cntFitness) + this.calcFitness(pop.target)) / ++this.cntFitness;
                 }
 
                 var curFitness = this.calcFitness(pop.target);
 
-                if(expression !== false && curFitness > (this.lastFitness || 0))
+                if(expression !== false)// && curFitness > (this.lastFitness || 0))
                 {
                     this.fitness = (this.fitness || 0) + curFitness;
                 }
-                else if(curFitness < (this.lastFitness || 0))
-                {
-                    this.fitness = Math.max(0, this.fitness - (Math.abs((this.lastFitness || 0) - curFitness) * 2));
-                }
+                // else if(curFitness < (this.lastFitness || 0))
+                // {
+                //     this.fitness = Math.max(0, this.fitness - (Math.abs((this.lastFitness || 0) - curFitness) * 2));
+                // }
 
-                this.lastFitness = curFitness;
+                // this.lastFitness = curFitness;
 
                 return expression !== false;
             },
