@@ -332,7 +332,7 @@ var fitnessSpan = document.getElementById('app-fitness'),
         dnaExp : exp,
         target : [750, 550],
         dnaDef : {
-            len      : 200,
+            len      : 480,
             init     : function()
             {
                 this.dnaInc = 0;
