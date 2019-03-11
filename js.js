@@ -89,6 +89,9 @@ declareClass('DNA', function(expression, options) {
                 thisCopy[key] = 'func:' + val.toString();
             }
         });
+
+        thisCopy.options = Object.assign({}, this.options);
+
         each(thisCopy.options, function(val, key)
         {
             if(is_function(val) && is_function(val.toString))
@@ -584,81 +587,84 @@ btnPause.onclick = function()
     }
 };
 
-btnDump.onclick = function()
-{
-    stop(function()
-    {
-        var popStr = pop.toString(),
-            res    = null;
-
-        Swal.fire({
-            input: 'textarea',
-            inputValue: popStr,
-            inputPlaceholder: 'Paste the pop state here...',
-            showCancelButton: true
-        }).then(function(result)
-        {
-            if (result)
-            {
-                res = result.value;
-            }
-
-            if(is_string(res) && res.length > 0)
-            {
-                try
-                {
-                    res = JSON.parse(res);
-                }
-                catch (e){};
-
-                if(is_object(res))
-                {
-                    pop = Object.assign(pop, res);
-
-                    for(var i = 0; i < pop.dnaList.length; i++)
-                    {
-                        if(is_object(pop.dnaList[i]))
-                        {
-                            pop.dnaList[i] = Object.assign(New(DNA), pop.dnaDef, pop.dnaList[i]);
-                            pop.dnaList[i].exp = Object.assign(New(Expression), pop.dnaList[i].exp);
-
-                            each(pop.dnaList[i], function(v, k)
-                            {
-                                if(is_string(v) && v.indexOf('func:') === 0)
-                                {
-                                    v = v.slice('func:'.length);
-
-                                    try
-                                    {
-                                        v = eval('(function(){return ' + v + '})()');
-                                    }
-                                    catch(e){};
-                                    pop.dnaList[i][k] = v;
-                                }
-                            });
-                            each(pop.dnaList[i].options, function(v, k)
-                            {
-                                if(is_string(v) && v.indexOf('func:') === 0)
-                                {
-                                    v = v.slice('func:'.length);
-
-                                    try
-                                    {
-                                        v = eval('(function(){return ' + v + '})()');
-                                    }
-                                    catch(e){};
-                                    pop.dnaList[i].options[k] = v;
-                                }
-                            });
-                        }
-                    }
-
-                    pop.dnaExp = Object.assign(New(Expression), pop.dnaExp);
-                    pop        = Object.assign(New(Population), pop);
-                }
-            }
-
-            start();
-        });
-    });
-};
+// btnDump.onclick = function()
+// {
+//     stop(function()
+//     {
+//         var popStr = Base64.toBase64(pop.toString()),
+//             res    = null;
+//
+//         Swal.fire({
+//             input: 'textarea',
+//             inputValue: popStr,
+//             inputPlaceholder: 'Paste the pop state here...',
+//             showCancelButton: true
+//         }).then(function(result)
+//         {
+//             if(result.value)
+//             {
+//                 res = Base64.fromBase64(result.value);
+//
+//                 if(is_string(res) && res.length > 0)
+//                 {
+//                     try
+//                     {
+//                         res = JSON.parse(res);
+//                     }
+//                     catch (e){};
+//
+//                     if(is_object(res))
+//                     {
+//                         pop = Object.assign(pop, res);
+//
+//                         for(var i = 0; i < pop.dnaList.length; i++)
+//                         {
+//                             if(is_object(pop.dnaList[i]))
+//                             {
+//                                 pop.dnaList[i]     = Object.assign(New(DNA), pop.dnaDef, pop.dnaList[i]);
+//                                 pop.dnaList[i].exp = Object.assign(New(Expression), pop.dnaList[i].exp);
+//
+//                                 each(pop.dnaList[i], function(v, k)
+//                                 {
+//                                     if(is_string(v) && v.indexOf('func:') === 0)
+//                                     {
+//                                         v = v.slice('func:'.length);
+//
+//                                         try
+//                                         {
+//                                             v = eval('(function(){return ' + v + '})()');
+//                                         }
+//                                         catch(e){};
+//                                         pop.dnaList[i][k] = v;
+//                                     }
+//                                 });
+//                                 each(pop.dnaList[i].options, function(v, k)
+//                                 {
+//                                     if(is_string(v) && v.indexOf('func:') === 0)
+//                                     {
+//                                         v = v.slice('func:'.length);
+//
+//                                         try
+//                                         {
+//                                             v = eval('(function(){return ' + v + '})()');
+//                                         }
+//                                         catch(e){};
+//                                         pop.dnaList[i].options[k] = v;
+//                                     }
+//                                 });
+//                             }
+//                         }
+//
+//                         pop.dnaExp = Object.assign(New(Expression), pop.dnaExp);
+//                         pop        = Object.assign(New(Population), pop);
+//                     }
+//                 }
+//             }
+//
+//             start();
+//         }).catch(function()
+//         {
+//             start();
+//         });
+//     });
+// };
