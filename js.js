@@ -423,9 +423,9 @@ var fitnessSpan = document.getElementById('app-fitness'),
                 {
                     this.fitness = (this.fitness || 0) + curFitness;
                 }
-                else if(curFitness < (this.maxFitness || 0))
+                else if(curFitness < (this.lastFitness || 0))
                 {
-                    this.fitness = Math.max(0, this.fitness - Math.abs((this.maxFitness || 0) - curFitness));
+                    this.fitness = Math.max(0, this.fitness - (Math.abs((this.lastFitness || 0) - curFitness) * 2));
                 }
 
                 this.lastFitness = curFitness;
