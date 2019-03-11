@@ -211,7 +211,7 @@ declareClass('Population', function(options)
 
         each(this.dnaList, function(dna)
         {
-            var fitness = dna.hitBoundary() ? 0 : dna.fitness / pop.tick,
+            var fitness = dna.fitness / pop.tick,
                 count   = Math.floor(fitness * 500);
 
             for(var i = 0; i <= count; i++)
