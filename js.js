@@ -419,7 +419,7 @@ var fitnessSpan = document.getElementById('app-fitness'),
 
                 var curFitness = this.calcFitness(pop.target);
 
-                if(expression !== false && curFitness > (this.maxFitness || 0))
+                if(expression !== false && curFitness > (this.lastFitness || 0))
                 {
                     this.fitness = (this.fitness || 0) + curFitness;
                 }
@@ -428,7 +428,7 @@ var fitnessSpan = document.getElementById('app-fitness'),
                     this.fitness = Math.max(0, this.fitness - Math.abs((this.maxFitness || 0) - curFitness));
                 }
 
-                this.maxFitness = Math.max(this.maxFitness || 0, curFitness);
+                this.lastFitness = curFitness;
 
                 return expression !== false;
             },
