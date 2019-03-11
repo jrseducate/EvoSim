@@ -386,7 +386,7 @@ var fitnessSpan = document.getElementById('app-fitness'),
                         this.y += expression.val[1] * 15;
                     }
 
-                    this.fitness = Math.max(this.fitness || 0, this.calcFitness(pop.target));
+                    this.fitness = (this.fitness || 0) + this.calcFitness(pop.target);
                     // this.avgFitness = ((this.avgFitness * this.cntFitness) + this.calcFitness(pop.target)) / ++this.cntFitness;
                 }
 
