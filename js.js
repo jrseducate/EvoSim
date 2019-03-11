@@ -404,6 +404,10 @@ var fitnessSpan = document.getElementById('app-fitness'),
                 {
                     this.fitness = (this.fitness || 0) + curFitness;
                 }
+                else if(curFitness < (this.maxFitness || 0))
+                {
+                    this.fitness -= Math.abs((this.maxFitness || 0) - curFitness);
+                }
 
                 this.maxFitness = Math.max(this.maxFitness || 0, curFitness);
 
