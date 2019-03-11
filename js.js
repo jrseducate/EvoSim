@@ -398,10 +398,14 @@ var fitnessSpan = document.getElementById('app-fitness'),
                     // this.avgFitness = ((this.avgFitness * this.cntFitness) + this.calcFitness(pop.target)) / ++this.cntFitness;
                 }
 
-                if(expression !== false)
+                var curFitness = this.calcFitness(pop.target);
+
+                if(expression !== false && curFitness > (this.maxFitness || 0))
                 {
-                    this.fitness = (this.fitness || 0) + this.calcFitness(pop.target);
+                    this.fitness = (this.fitness || 0) + curFitness;
                 }
+
+                this.maxFitness = Math.max(this.maxFitness || 0, curFitness);
 
                 return expression !== false;
             },
@@ -475,7 +479,7 @@ function updateApp()
 
 function start()
 {
-    interval = setInterval(updateApp, 25);
+    interval = setInterval(updateApp, 10);
 }
 
 function stop(callback)
