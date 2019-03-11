@@ -385,9 +385,9 @@ var fitnessSpan = document.getElementById('app-fitness'),
                         this.x += expression.val[0] * 15;
                         this.y += expression.val[1] * 15;
                     }
-                }
 
-                this.avgFitness = ((this.avgFitness * this.cntFitness) + this.calcFitness(pop.target)) / ++this.cntFitness;
+                    this.avgFitness = ((this.avgFitness * this.cntFitness) + this.calcFitness(pop.target)) / ++this.cntFitness;
+                }
 
                 return expression !== false;
             },
