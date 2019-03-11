@@ -61,6 +61,10 @@
 
         <link rel="stylesheet" href="/node_modules/perfect-scrollbar/css/perfect-scrollbar.css">
         <script src="/node_modules/perfect-scrollbar/dist/perfect-scrollbar.js"></script>
+
+        <link rel="stylesheet" href="/node_modules/sweetalert2/dist/sweetalert2.css">
+        <script src="/node_modules/sweetalert2/dist/sweetalert2.js"></script>
+
     </head>
 
     <body>
@@ -69,8 +73,15 @@
             <span id="app-fitness"></span>
             <canvas id='app-canvas' class='centered' width='800' height='600'></canvas>
             <div id="app-buttons" class='align-center w100p'>
-                <div id="app-button-dest" class="btn btn-primary disabled">Dest</div>
-                <div id="app-button-wall" class="btn btn-secondary">Wall</div>
+                <div>
+                    <div id="app-button-gif" class="btn btn-primary">Gif</div>
+                    <div id="app-button-pause" class="btn btn-danger">Pause</div>
+                    <div id="app-button-dump" class="btn btn-info">Dump</div>
+                </div>
+                <div>
+                    <div id="app-button-dest" class="btn btn-primary disabled">Dest</div>
+                    <div id="app-button-wall" class="btn btn-secondary">Wall</div>
+                </div>
             </div>
         </div>
 

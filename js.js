@@ -2,6 +2,10 @@ declareClass('Expression', function(expMap)
 {
     this.expMap = expMap;
 }, {
+    toString: function()
+    {
+        return JSON.stringify(this);
+    },
     getExpMap: function()
     {
         return this.expMap;
@@ -35,18 +39,24 @@ declareClass('Expression', function(expMap)
 var startedAt = Math.floor(Date.now() / 1000);
 
 declareClass('DNA', function(expression, options) {
-    this.options    = options;
-    this.exp        = expression;
-    this.dnaInc     = 0;
-    this.avgFitness = 0;
-    this.cntFitness = 0;
-    this.len        = try_get(options, 'len', try_get(options, 'dna.length', null));
-    this.dna        = try_get(options, 'dna', this.randomDna(), is_array);
-    this.activate   = try_get(options, 'activate', function(){throw 'this.activate is not defined!';}, is_function);
-    this.update     = try_get(options, 'update', function(){throw 'this.update is not defined!';}, is_function);
-    this.render     = try_get(options, 'render', function(){throw 'this.render is not defined!';}, is_function);
+    if(is_object(expression))
+    {
+        this.exp = expression;
+    }
+    if(is_object(options))
+    {
+        this.options    = options;
+        this.dnaInc     = 0;
+        this.avgFitness = 0;
+        this.cntFitness = 0;
+        this.len        = try_get(options, 'len', try_get(options, 'dna.length', null));
+        this.dna        = try_get(options, 'dna', this.randomDna(), is_array);
+        this.activate   = try_get(options, 'activate', function(){throw 'this.activate is not defined!';}, is_function);
+        this.update     = try_get(options, 'update', function(){throw 'this.update is not defined!';}, is_function);
+        this.render     = try_get(options, 'render', function(){throw 'this.render is not defined!';}, is_function);
 
-    (this.init      = try_get(options, 'init', function(){}, is_function)).apply(this);
+        (this.init      = try_get(options, 'init', function(){}, is_function)).apply(this);
+    }
 }, {
     randomDna: function()
     {
@@ -70,7 +80,24 @@ declareClass('DNA', function(expression, options) {
     },
     toString: function()
     {
-        return JSON.stringify(this.getDna(), null, 2);
+        var thisCopy = Object.assign({}, this);
+
+        each(thisCopy, function(val, key)
+        {
+            if(is_function(val) && is_function(val.toString))
+            {
+                thisCopy[key] = 'func:' + val.toString();
+            }
+        });
+        each(thisCopy.options, function(val, key)
+        {
+            if(is_function(val) && is_function(val.toString))
+            {
+                thisCopy.options[key] = 'func:' + val.toString();
+            }
+        });
+
+        return JSON.stringify(thisCopy);
     },
     getDna: function()
     {
@@ -114,13 +141,34 @@ declareClass('DNA', function(expression, options) {
 
 declareClass('Population', function(options)
 {
-    this.size   = try_get(options, 'size', 100);
-    this.dnaDef = try_get(options, 'dnaDef', {}, is_object);
-    this.dnaExp = try_get(options, 'dnaExp', {}, is_object);
-    this.target = try_get(options, 'target', {}, is_array);
-    this.dnaList = this.generateDnaList();
-    this.walls   = [];
+    if(is_object(options))
+    {
+        this.size   = try_get(options, 'size', 100);
+        this.dnaDef = try_get(options, 'dnaDef', {}, is_object);
+        this.dnaExp = try_get(options, 'dnaExp', {}, is_object);
+        this.target = try_get(options, 'target', {}, is_array);
+        this.dnaList = this.generateDnaList();
+        this.walls   = [];
+    }
 }, {
+    toString : function()
+    {
+        var res = [];
+
+        res.push('"size": ' + JSON.stringify(this.size));
+        res.push('"walls": ' + JSON.stringify(this.walls));
+        res.push('"target": ' + JSON.stringify(this.target));
+        res.push('"dnaDef": ' + JSON.stringify(this.dnaDef));
+        res.push('"dnaExp": ' + this.dnaExp.toString());
+        res.push('"dnaList": [' + this.dnaList.map(function(v)
+        {
+            return v.toString();
+        }).join(',') + ']');
+
+        res = '{' + res.join(',') + '}';
+
+        return res;
+    },
     init : function()
     {
         each(this.dnaList, function(dna)
@@ -206,7 +254,7 @@ declareClass('Population', function(options)
         {
             each(removeIndexes, function(i)
             {
-                context.walls[i] = null;
+                context.walls.splice(i, 1);
             });
         }
         else
@@ -348,9 +396,7 @@ var fitnessSpan = document.getElementById('app-fitness'),
         }
     });
 
-var encoder,
-    i        = 0,
-    interval = setInterval(function()
+function updateApp()
 {
     // graphics.clearRect(0, 0, 800, 600);
 
@@ -401,10 +447,44 @@ var encoder,
         graphics.clearRect(0, 0, 800, 600);
         i = 0;
         pop.reproduce();
+
+        if(is_function(pop.onComplete))
+        {
+            pop.onComplete();
+            pop.onComplete = null;
+        }
     }
-}, 2);
+}
+
+function start()
+{
+    interval = setInterval(updateApp, 2);
+}
+
+function stop(callback)
+{
+    pop.onComplete = function()
+    {
+        clearInterval(interval);
+        interval = null;
+
+        if(is_function(callback))
+        {
+            callback();
+        }
+    }
+}
+
+var encoder,
+    i        = 0,
+    interval;
+
+start();
 
 var clickMode = 'dest',
+    btnGif    = document.getElementById('app-button-gif'),
+    btnPause  = document.getElementById('app-button-pause'),
+    btnDump   = document.getElementById('app-button-dump'),
     btnDest   = document.getElementById('app-button-dest'),
     btnWall   = document.getElementById('app-button-wall');
 
@@ -444,8 +524,6 @@ canvas.onclick = function(e)
         x    = e.clientX - rect.left,
         y    = e.clientY - rect.top;
 
-    console.log("x: " + x + " y: " + y);
-
     if(clickMode === 'dest')
     {
         pop.target = [x, y];
@@ -456,69 +534,131 @@ canvas.onclick = function(e)
     }
 };
 
-document.onkeypress = function(e)
+btnGif.onclick = function(e)
 {
-    if(e.key === ' ')
+    if(isset(encoder))
     {
-        if(isset(encoder))
+        encoder.finish();
+
+        var fileName = window.prompt("File Name", "download.gif");
+
+        if(typeof fileName === 'string' && fileName.length > 0)
         {
-            encoder.finish();
-
-            var fileName = window.prompt("File Name", "download.gif");
-
-            if(typeof fileName === 'string' && fileName.length > 0)
-            {
-                encoder.download(fileName);
-            }
-
-            encoder = null;
+            encoder.download(fileName);
         }
-        else
-        {
-            encoder = new GIFEncoder();
-            encoder.setRepeat(0);
-            encoder.setDelay(2);
-            encoder.start();
-        }
+
+        encoder = null;
+
+        btnGif.innerText = 'Gif';
+        btnGif.classList.remove('btn-success');
+        btnGif.classList.add('btn-primary');
+    }
+    else
+    {
+        encoder = new GIFEncoder();
+        encoder.setRepeat(0);
+        encoder.setDelay(2);
+        encoder.start();
+
+        btnGif.innerText = 'Gif : Finish';
+        btnGif.classList.remove('btn-primary');
+        btnGif.classList.add('btn-success');
     }
 };
 
-function stop()
+btnPause.onclick = function()
 {
-    clearInterval(interval);
-}
+    if(isset(interval) && !isset(pop.onComplete))
+    {
+        stop();
+        btnPause.innerText = "Resume";
+        btnPause.classList.remove('btn-danger');
+        btnPause.classList.add('btn-success');
+    }
+    else if(!isset(interval))
+    {
+        start();
+        btnPause.innerText = "Pause";
+        btnPause.classList.remove('btn-success');
+        btnPause.classList.add('btn-danger');
+    }
+};
 
-// if(app.encoder)
-// {
-//     app.encoder.finish();
-//
-//     var binary_gif   = app.encoder.stream().getData(),
-//         data_url     = 'data:image/gif;base64,' + encode64(binary_gif),
-//         id           = 'app-preview-image-' + selectors.piContainer.children.length + 1,
-//         active       = selectors.piContainer.children.length === 0 ? ' active' : '';
-//         piContent    = htmlToElement('<div class="carousel-item' + active + '"> <img id="' + id + '" /><span class="centered preview-image-download" data-forward-click="#' + id + '">Download</span> </div>'),
-//         previewImage = piContent.querySelector('img');
-//
-//     previewImage.src = data_url;
-//
-//     scope(function(encoder)
-//     {
-//         previewImage.onclick = null;
-//         previewImage.onclick = function()
-//         {
-//             if(encoder && this.src !== null && this.src !== undefined && this.src.length > 0)
-//             {
-//                 var fileName = window.prompt("File Name", "download.gif");
-//
-//                 if(typeof fileName === 'string' && fileName.length > 0)
-//                 {
-//                     encoder.download(fileName);
-//                 }
-//             }
-//         }
-//     }, app.encoder);
-//
-//     selectors.piContainer.classList.add('enabled');
-//     selectors.piContainer.parentNode.classList.add('enabled');
-//     selectors.piContainer.appendChild(piContent);
-// }
+btnDump.onclick = function()
+{
+    stop(function()
+    {
+        var popStr = pop.toString(),
+            res    = null;
+
+        Swal.fire({
+            input: 'textarea',
+            inputValue: popStr,
+            inputPlaceholder: 'Paste the pop state here...',
+            showCancelButton: true
+        }).then(function(result)
+        {
+            if (result)
+            {
+                res = result.value;
+            }
+
+            if(is_string(res) && res.length > 0)
+            {
+                try
+                {
+                    res = JSON.parse(res);
+                }
+                catch (e){};
+
+                if(is_object(res))
+                {
+                    pop = Object.assign(pop, res);
+
+                    for(var i = 0; i < pop.dnaList.length; i++)
+                    {
+                        if(is_object(pop.dnaList[i]))
+                        {
+                            pop.dnaList[i] = Object.assign(New(DNA), pop.dnaDef, pop.dnaList[i]);
+                            pop.dnaList[i].exp = Object.assign(New(Expression), pop.dnaList[i].exp);
+
+                            each(pop.dnaList[i], function(v, k)
+                            {
+                                if(is_string(v) && v.indexOf('func:') === 0)
+                                {
+                                    v = v.slice('func:'.length);
+
+                                    try
+                                    {
+                                        v = eval('(function(){return ' + v + '})()');
+                                    }
+                                    catch(e){};
+                                    pop.dnaList[i][k] = v;
+                                }
+                            });
+                            each(pop.dnaList[i].options, function(v, k)
+                            {
+                                if(is_string(v) && v.indexOf('func:') === 0)
+                                {
+                                    v = v.slice('func:'.length);
+
+                                    try
+                                    {
+                                        v = eval('(function(){return ' + v + '})()');
+                                    }
+                                    catch(e){};
+                                    pop.dnaList[i].options[k] = v;
+                                }
+                            });
+                        }
+                    }
+
+                    pop.dnaExp = Object.assign(New(Expression), pop.dnaExp);
+                    pop        = Object.assign(New(Population), pop);
+                }
+            }
+
+            start();
+        });
+    });
+};

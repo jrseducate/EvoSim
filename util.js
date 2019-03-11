@@ -392,6 +392,27 @@ function anyFunc()
     };
 }
 
+function stringifyDeep(o)
+{
+    var seen = [];
+    return JSON.stringify(o, function(_, value)
+    {
+        if (typeof value === 'object' && value !== null)
+        {
+            if(seen.indexOf(value) !== -1)
+            {
+                return;
+            }
+            else
+            {
+                seen.push(value);
+            }
+        }
+
+        return value;
+    });
+}
+
 //----------------------------
 //  Classes
 //----------------------------
@@ -478,7 +499,7 @@ function getRandomColor()
 {
     var letters = '0123456789ABCDEF',
         color   = '#';
-        
+
     for (var i = 0; i < 6; i++)
     {
         color += letters[Math.floor(Math.random() * 16)];
@@ -648,6 +669,18 @@ function debugObject(obj, options)
 
     return dObj;
 }
+
+function copyToClipboard(str)
+{
+    var el   = document.createElement('textarea');
+    el.value = str;
+
+    document.body.appendChild(el);
+    el.select();
+
+    document.execCommand('copy');
+    document.body.removeChild(el);
+};
 
 // function debugObjectInPlace(obj, options)
 // {
