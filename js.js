@@ -202,7 +202,7 @@ declareClass('Population', function(options)
 
         each(this.dnaList, function(dna)
         {
-            var fitness = dna.fitness / pop.tick,
+            var fitness = dna.hitBoundary() ? 0 : dna.fitness / pop.tick,
                 count   = Math.floor(fitness * 100);
 
             for(var i = 0; i <= count; i++)
@@ -336,6 +336,10 @@ var fitnessSpan = document.getElementById('app-fitness'),
                 this.y      = 300;
                 this.color  = try_get(this, 'color', getRandomColor() + '44', is_string);
             },
+            hitBoundary : function()
+            {
+                return (this.x <= 0 || this.x >= 800 || this.y <= 0 || this.y >= 600 || pop.checkHitWall(this));
+            },
             activate : function()
             {
                 var expression = this.dna[this.dnaInc];
@@ -382,7 +386,7 @@ var fitnessSpan = document.getElementById('app-fitness'),
             {
                 var expression = false;
 
-                if(!(this.x <= 0 || this.x >= 800 || this.y <= 0 || this.y >= 600 || pop.checkHitWall(this)))
+                if(!this.hitBoundary())
                 {
                     expression = this.activate();
 
