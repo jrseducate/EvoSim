@@ -108,7 +108,12 @@ declareClass('DNA', function(expression, options) {
     },
     calcFitness : function(target)
     {
-        return (1 / (Math.sqrt(Math.pow(target[0] - this.x, 2) + Math.pow(target[1] - this.y, 2)) + 1) * 50);//((Math.min(600, this.y) / 600) + (Math.min(800, this.x) / 800)) / 2;
+        var xDist = Math.abs(target[0] - this.x),
+            yDist = Math.abs(target[1] - this.y),
+            pow   = 25,
+            res   = Math.pow((((800 + 600) - Math.max(xDist + yDist, 1)) / (800 + 600)) * 10, pow) / Math.pow(9, pow);
+
+        return res;//(1 / (Math.sqrt(Math.pow(target[0] - this.x, 2) + Math.pow(target[1] - this.y, 2)) + 1) * 50);//((Math.min(600, this.y) / 600) + (Math.min(800, this.x) / 800)) / 2;
     },
     mutate    : function()
     {
@@ -198,7 +203,7 @@ declareClass('Population', function(options)
         each(this.dnaList, function(dna)
         {
             var fitness = dna.fitness / pop.tick,
-                count   = Math.min(400, Math.floor(Math.pow(fitness * 100, 2) / Math.pow(100, 2) * 100)) / 4;//Math.floor(Math.max(fitness * 100, 50) - 49);
+                count   = Math.floor(fitness * 100);
 
             for(var i = 0; i <= count; i++)
             {
@@ -208,10 +213,10 @@ declareClass('Population', function(options)
 
         var newFitList = [];
 
-        for(var i = 0, j = fitList.length - 1; i < fitList.length / 2; i++, j--)
+        for(var i = 0; i < fitList.length; i++)
         {
-            var selectedDna    = fitList[i],
-                selectedDnaB   = fitList[j];
+            var selectedDna    = fitList[Math.floor(Math.random() * (fitList.length / 2))],
+                selectedDnaB   = fitList[Math.floor((Math.random() * (fitList.length / 2)) + (fitList.length / 2))];
 
             newFitList.push(selectedDna.crossover(selectedDnaB));
         }
@@ -431,9 +436,9 @@ function updateApp()
 
         each(pop.dnaList, function(dna)
         {
-            avgFitness += dna.fitness;
+            avgFitness += dna.fitness / pop.tick;
 
-            if(Math.random() < 0.01)
+            if(Math.random() < 0.75)
             {
                 dna.mutate();
             }
@@ -450,8 +455,8 @@ function updateApp()
         fitnessSpan.innerHTML = "<br>Average Fitness: " + (avgFitness * 100).toFixed(2) + fitnessSpan.innerHTML;
 
         graphics.clearRect(0, 0, 800, 600);
-        pop.tick = 0;
         pop.reproduce();
+        pop.tick = 0;
 
         if(is_function(pop.onComplete))
         {
