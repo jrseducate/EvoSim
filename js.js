@@ -23,6 +23,11 @@ declareClass('Expression', function(expMap)
         var expKeys = this.getExpKeys(),
             i       = Math.floor(Math.random() * expKeys.length);
 
+        if(expKeys[i] === 'stop' && Math.random() > 0.1)
+        {
+            return this.getRandomExpKey();
+        }
+
         return expKeys[i];
     },
     getRandomExp: function()
