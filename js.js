@@ -196,7 +196,7 @@ declareClass('Population', function(options)
 
         each(this.dnaList, function(dna)
         {
-            var fitness = dna.avgFitness,
+            var fitness = dna.fitness,
                 count   = Math.min(400, Math.floor(Math.pow(fitness * 100, 2) / Math.pow(100, 2) * 100)) / 4;//Math.floor(Math.max(fitness * 100, 50) - 49);
 
             for(var i = 0; i <= count; i++)
@@ -386,7 +386,8 @@ var fitnessSpan = document.getElementById('app-fitness'),
                         this.y += expression.val[1] * 15;
                     }
 
-                    this.avgFitness = ((this.avgFitness * this.cntFitness) + this.calcFitness(pop.target)) / ++this.cntFitness;
+                    this.fitness = Math.max(this.fitness || 0, this.calcFitness(pop.target));
+                    // this.avgFitness = ((this.avgFitness * this.cntFitness) + this.calcFitness(pop.target)) / ++this.cntFitness;
                 }
 
                 return expression !== false;
@@ -429,9 +430,9 @@ function updateApp()
 
         each(pop.dnaList, function(dna)
         {
-            avgFitness += dna.avgFitness;
+            avgFitness += dna.fitness;
 
-            if(Math.random() < 1 / Math.min(dna.avgFitness, 99) + 1)
+            if(Math.random() < 0.01)
             {
                 dna.mutate();
             }
