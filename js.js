@@ -344,6 +344,11 @@ var fitnessSpan = document.getElementById('app-fitness'),
             },
             activate : function()
             {
+                if(!this.active)
+                {
+                    return false;
+                }
+
                 var expression = this.dna[this.dnaInc];
 
                 if(isset(expression))
@@ -381,7 +386,7 @@ var fitnessSpan = document.getElementById('app-fitness'),
                         this.dnaInc++;
                     }
 
-                    if(res === true && this.active)
+                    if(res === true)
                     {
                         return this.activate();
                     }
