@@ -475,7 +475,7 @@ function updateApp()
 
 function start()
 {
-    interval = setInterval(updateApp, 2);
+    interval = setInterval(updateApp, 50);
 }
 
 function stop(callback)
