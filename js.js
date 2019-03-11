@@ -476,6 +476,12 @@ function stop(callback)
             callback();
         }
     }
+
+    if(!is_function(callback))
+    {
+        pop.onComplete();
+        pop.onComplete = null;
+    }
 }
 
 var encoder,
