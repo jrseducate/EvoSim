@@ -146,6 +146,7 @@ declareClass('Population', function(options)
 {
     if(is_object(options))
     {
+        this.tick   = 0;
         this.size   = try_get(options, 'size', 100);
         this.dnaDef = try_get(options, 'dnaDef', {}, is_object);
         this.dnaExp = try_get(options, 'dnaExp', {}, is_object);
