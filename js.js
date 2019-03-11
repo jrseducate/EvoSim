@@ -313,7 +313,7 @@ var fitnessSpan = document.getElementById('app-fitness'),
     forwMax     = 25,
     forwMaxDist = 50,
     exp         = New(Expression, {
-        stop  : true,
+        // stop  : true,
         up    : [0, 1],
         down  : [0, -1],
         left  : [-1, 0],
