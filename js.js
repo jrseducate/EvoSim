@@ -308,6 +308,7 @@ var fitnessSpan = document.getElementById('app-fitness'),
     forwMax     = 25,
     forwMaxDist = 50,
     exp         = New(Expression, {
+        stop  : true,
         up    : [0, 1],
         down  : [0, -1],
         left  : [-1, 0],
@@ -335,6 +336,7 @@ var fitnessSpan = document.getElementById('app-fitness'),
             len      : 480,
             init     : function()
             {
+                this.active = true;
                 this.dnaInc = 0;
                 this.x      = 400;
                 this.y      = 300;
@@ -362,6 +364,13 @@ var fitnessSpan = document.getElementById('app-fitness'),
                                     break;
                             }
                             break;
+                        case 'boolean':
+                            switch(expression.key)
+                            {
+                                case 'stop':
+                                    this.active = false;
+                                    break;
+                            }
                         default:
                             res = expression;
                             break;
@@ -372,7 +381,7 @@ var fitnessSpan = document.getElementById('app-fitness'),
                         this.dnaInc++;
                     }
 
-                    if(res === true)
+                    if(res === true && this.active)
                     {
                         return this.activate();
                     }
